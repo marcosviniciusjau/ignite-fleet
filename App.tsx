@@ -8,11 +8,14 @@ import { REALM_APP_ID } from "@env"
 import theme from './src/theme';
 
 import { Routes } from './src/routes';
+import { RealmProvider } from './src/libs/realm';
 
 import { SignIn } from './src/screens/SignIn';
 import { Loading } from './src/components/Loading';
 import { StatusBar } from 'react-native';
 import React from 'react';
+
+
 export default function App() {
   const [fontsLoaded]= useFonts({
     Roboto_400Regular,
@@ -25,23 +28,22 @@ export default function App() {
     );
   }
   return (
-     <AppProvider id={REALM_APP_ID}>
+  <AppProvider id={REALM_APP_ID}>
     <ThemeProvider theme={theme}>
-    <SafeAreaProvider>
-    <StatusBar 
-    barStyle="light-content"
-    backgroundColor="transparent"
-    translucent 
-    />
-
-    <UserProvider fallback={SignIn}>
-      <Routes/>
-    </UserProvider>
-    </SafeAreaProvider>
+      <SafeAreaProvider>
+        <StatusBar 
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent 
+        />
+          <UserProvider fallback={SignIn}>
+            <RealmProvider>
+              <Routes/>
+            </RealmProvider>
+          </UserProvider>
+      </SafeAreaProvider>
     </ThemeProvider>
-    </AppProvider>
-  
- 
+  </AppProvider>
   );
 }
 

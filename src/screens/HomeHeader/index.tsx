@@ -35,7 +35,7 @@ export function HomeHeader() {
       </Greeting>
 
       <TouchableOpacity activeOpacity={0.7} onPress={handleLogOut}>
-        <Power size={32} color={theme.COLORS.GRAY_400} />
+        
       </TouchableOpacity>
     </Container>
   );
