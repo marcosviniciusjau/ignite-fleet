@@ -1,5 +1,6 @@
 import { TouchableOpacity } from 'react-native'
-import { Power } from 'phosphor-react-native'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faPowerOff } from '@fortawesome/free-solid-svg-icons';
 import { useUser, useApp } from '@realm/react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -35,7 +36,7 @@ export function HomeHeader() {
       </Greeting>
 
       <TouchableOpacity activeOpacity={0.7} onPress={handleLogOut}>
-        
+        <FontAwesomeIcon icon={faPowerOff} size={24} color={theme.COLORS.GRAY_400}/>
       </TouchableOpacity>
     </Container>
   );
