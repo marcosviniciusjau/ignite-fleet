@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
-import { TextInput,ScrollView,KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { TextInput,ScrollView, Alert } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 import { useNavigation } from '@react-navigation/native';
 
 import { useRealm } from '../../libs/realm';
@@ -14,8 +16,6 @@ import { LicensePlateInput } from '../../components/LicensePlateInput';
 import { TextAreaInput } from '../../components/TextAreaInput';
 import { Button } from '../../components/Button';
 
-
-const KeyBoardAvoidingViewBehavior = Platform.OS === 'android' ? 'height' : 'position';
 export function Departure() {
   const [description,setDescription]= useState('');
   const [licensePlate,setLicensePlate]= useState('');
@@ -65,7 +65,7 @@ export function Departure() {
     <Container>
       <Header title="Saída"/>
 
-      <KeyboardAvoidingView style={{flex:1}} behavior={KeyBoardAvoidingViewBehavior}>
+      <KeyboardAwareScrollView extraHeight={100}>
         <ScrollView>
           <Content>
             <LicensePlateInput
@@ -94,7 +94,7 @@ export function Departure() {
             />
           </Content>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </Container>
   );
 }

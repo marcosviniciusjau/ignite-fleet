@@ -1,7 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { TouchableOpacityProps } from 'react-native';
-import { faKey } from '@fortawesome/free-solid-svg-icons/faKey';
-import { faCar } from '@fortawesome/free-solid-svg-icons/faCar';
+import { faKey,faCar } from '@fortawesome/free-solid-svg-icons';
 import { Container, IconBox, Message, TextHighlight } from './styles';
 import { useTheme } from 'styled-components';
 
@@ -18,7 +17,7 @@ export function CarStatus({ licensePlate = null, ...rest }: Props) {
   return (
     <Container {...rest}>
       <IconBox>
-        <FontAwesomeIcon icon={icon} size={24} color={theme.COLORS.BRAND_LIGHT} />
+        <FontAwesomeIcon icon={icon} size={52} color={theme.COLORS.BRAND_LIGHT} />
       </IconBox>
       <Message>
         {message}
