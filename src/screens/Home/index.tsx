@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { Alert,FlatList } from "react-native";
+import Toast from "react-native-toast-message";
 import dayjs from "dayjs";
 
 import { Historic } from "../../libs/realm/schemas/Historic";
@@ -13,11 +14,15 @@ import { HistoricCard, HistoricCardProps } from "../../components/HistoricCard";
 
 import { HomeHeader } from "../HomeHeader";
 import { Container, Content, Label, Title } from "./styles";
+import { getLastAsync, saveLastSync } from "../../libs/asyncStorage/SyncStorage";
+import { TopMessage } from "../../components/TopMessage";
+import { faCloudArrowUp } from "@fortawesome/free-solid-svg-icons";
 
 export function Home() {
 
   const [vehicleInUse,setVehicleInUse]= useState<Historic | null>(null);
   const [vehicleHistoric,setVehicleHistoric]= useState<HistoricCardProps[]>([]);
+  const [percentageToSync,setPercentageToSync]= useState<string | null>(null)
   const {navigate}= useNavigation();
 
   const realm= useRealm();
@@ -42,15 +47,16 @@ export function Home() {
     }
   }
 
-  function fetchHistoric(){
+  async function fetchHistoric(){
     try{
       const response= historic.filtered("status = 'arrival' SORT (created_at DESC)");
+      const lastSync= await getLastAsync();
 
       const formattedHistoric= response.map((item)=>{
         return({
           id: item._id.toString(),
           licensePlate: item.license_plate,
-          isSync:false,
+          isSync:lastSync > item.updated_at!.getTime(),
           created: dayjs(item.created_at).format('[Saída em] DD/MM/YYYY [às] HH:mm'),
         });
       });
@@ -66,9 +72,22 @@ export function Home() {
     navigate('arrival', {id});
   }
 
-  function progressNotification(transferred: number, transferable: number) {
-    const percentage= (transferred/transferable)*100
-    console.log("transferido", `${percentage}%`)
+  async function progressNotification(transferred: number, transferable: number) {
+    const percentage= (transferred/transferable) * 100;
+
+    if(percentage === 100){
+      await saveLastSync();
+      await fetchHistoric();
+      setPercentageToSync(null);
+
+      Toast.show({
+        type: 'info',
+        text1: 'Todos os dados estão sincronizados',
+      });
+    }
+    if(percentage < 100){
+      setPercentageToSync(`${percentage.toFixed(2)}% sincronizado.`);
+    }
   }
 
   useEffect(() => {
@@ -116,6 +135,10 @@ export function Home() {
 
   return (
     <Container>
+
+      {
+        percentageToSync && <TopMessage title={percentageToSync} icon={faCloudArrowUp}/>
+      }
       <HomeHeader />
       <Content>
         <CarStatus

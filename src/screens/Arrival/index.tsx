@@ -5,17 +5,21 @@ import { BSON } from 'realm';
 import { useObject,useRealm } from '../../libs/realm';
 import { Historic } from '../../libs/realm/schemas/Historic';
 
-import { Container, Content, Description, Footer, LicensePlate } from './styles';
+import { Container, Content, Description, Footer, LicensePlate,AsyncMessage } from './styles';
 
 import { Label } from '../../components/LicensePlateInput/styles';
 import { Header } from '../../components/Header';
 import { Button } from '../../components/Button';
 import { ButtonIcon } from '../../components/ButtonIcon';
+import { useEffect, useState } from 'react';
+import { getLastAsync } from '../../libs/asyncStorage/SyncStorage';
 
 type RouteParams={
     id:string
 }
 export function Arrival() {
+    const [dataNotSynced,setDataNotSynced]= useState(false);
+
     const route= useRoute();
     const { id }= route.params as RouteParams;
 
@@ -64,6 +68,12 @@ export function Arrival() {
       }
     }
 
+    useEffect(()=>{
+      getLastAsync()
+      .then(lastSync =>setDataNotSynced(historic!.updated_at.getTime() > lastSync));
+      
+    },[historic])
+
   return (
     <Container>
       <Header title={title}/>
@@ -100,6 +110,13 @@ export function Arrival() {
         </Footer>
         }
 
+     {  dataNotSynced &&
+        <AsyncMessage>
+              Sincronização da
+              {historic?.status === 'departure' ? 'partida' : 'chegada'}
+              pendente
+        </AsyncMessage>
+     }
     </Container>
   );
 }

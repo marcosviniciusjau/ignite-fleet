@@ -1,5 +1,6 @@
 import 'react-native-get-random-values';
 import './src/libs/dayjs';
+import { RealmProvider, syncConfig } from './src/libs/realm';
 
 import {ThemeProvider} from 'styled-components/native';
 import {AppProvider, UserProvider} from "@realm/react";
@@ -13,7 +14,6 @@ import { REALM_APP_ID } from "@env"
 import theme from './src/theme';
 
 import { Routes } from './src/routes';
-import { RealmProvider, syncConfig } from './src/libs/realm';
 
 import { SignIn } from './src/screens/SignIn';
 import { Loading } from './src/components/Loading';
