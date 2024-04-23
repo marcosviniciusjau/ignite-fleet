@@ -5,25 +5,28 @@ import {ThemeProvider} from 'styled-components/native';
 import {AppProvider, UserProvider} from "@realm/react";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Roboto_400Regular, Roboto_700Bold } from '@expo-google-fonts/roboto';
+import { faWifi } from '@fortawesome/free-solid-svg-icons';
 
+import {useNetInfo} from '@react-native-community/netinfo'
 import { REALM_APP_ID } from "@env"
 
 import theme from './src/theme';
 
 import { Routes } from './src/routes';
-import { RealmProvider } from './src/libs/realm';
+import { RealmProvider, syncConfig } from './src/libs/realm';
 
 import { SignIn } from './src/screens/SignIn';
 import { Loading } from './src/components/Loading';
 import { StatusBar } from 'react-native';
-import React from 'react';
-
+import { TopMessage } from './src/components/TopMessage';
 
 export default function App() {
   const [fontsLoaded]= useFonts({
     Roboto_400Regular,
     Roboto_700Bold
   })
+
+  const netInfo= useNetInfo();
 
   if(!fontsLoaded){
     return(
@@ -34,13 +37,33 @@ export default function App() {
   <AppProvider id={REALM_APP_ID}>
     <ThemeProvider theme={theme}>
       <SafeAreaProvider style={{flex: 1, backgroundColor: theme.COLORS.GRAY_800}}>
+        
         <StatusBar 
         barStyle="light-content"
         backgroundColor="transparent"
         translucent 
         />
-          <UserProvider fallback={SignIn}>
-            <RealmProvider>
+        {
+          !netInfo.isConnected &&
+         <TopMessage 
+            title="Você está offline"
+            icon={faWifi} 
+         />
+         }
+     
+        <UserProvider fallback={SignIn}> 
+        <RealmProvider
+              sync={{
+                ...syncConfig,
+                initialSubscriptions: {
+                  update(subs, realm) {
+                    subs.add(realm.objects('Historic'))
+                  },
+                  rerunOnOpen: true,
+                },
+              }}
+              fallback={Loading}
+            >
               <Routes/>
             </RealmProvider>
           </UserProvider>
@@ -49,4 +72,3 @@ export default function App() {
   </AppProvider>
   );
 }
-
