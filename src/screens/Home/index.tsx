@@ -30,11 +30,11 @@ export function Home() {
 
   const historic= useQuery(Historic);
 
-  function handleRegisterMoviment(){
-    if(vehicleInUse?._id){
-      return navigate('arrival', {id:vehicleInUse._id.toString()});
-    }else{
-      navigate('departure');
+  function handleRegisterMoviment() {
+    if(vehicleInUse?._id) {
+      navigate('arrival', { id: vehicleInUse._id.toString() });
+    } else {
+      navigate('departure')
     }
   }
 
@@ -68,8 +68,8 @@ export function Home() {
     }
   }
 
-  function handleHistoricDetails(id:string){
-    navigate('arrival', {id});
+  function handleHistoricDetails(id: string) {
+    navigate('arrival', { id })
   }
 
   async function progressNotification(transferred: number, transferable: number) {
@@ -110,7 +110,7 @@ export function Home() {
 
   useEffect(() => {
     realm.subscriptions.update((mutableSubs,realm) => {
-      const historicByUser= realm.objects('Historic').filter(`user_id - '${user!.id}'`);
+      const historicByUser= realm.objects('Historic').filtered(`user_id - '${user!.id}'`);
 
       mutableSubs.add(historicByUser, {name: 'historic_by_user'});
 

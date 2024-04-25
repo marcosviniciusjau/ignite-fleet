@@ -1,6 +1,13 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TextInput,ScrollView, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import {
+   useForegroundPermissions,
+   watchPositionAsync,
+   LocationAccuracy,
+   LocationSubscription,
+   LocationObjectCoords
+} from 'expo-location';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -9,18 +16,31 @@ import { Historic } from '../../libs/realm/schemas/Historic';
 import { useUser } from '@realm/react';
 
 import { licensePlateValidate } from '../../utils/licensePlateValidate';
+import { getAddress } from '../../utils/getAddress';
 
-import { Container, Content } from './styles';
+import { Container, Content, Message } from './styles';
+
 import { Header } from '../../components/Header';
 import { LicensePlateInput } from '../../components/LicensePlateInput';
 import { TextAreaInput } from '../../components/TextAreaInput';
 import { Button } from '../../components/Button';
+import { Loading } from '../../components/Loading';
+import { Map } from '../../components/Map';
+import { LocationInfo } from '../../components/LocationInfo';
+import { faCar } from '@fortawesome/free-solid-svg-icons';
 
 export function Departure() {
   const [description,setDescription]= useState('');
   const [licensePlate,setLicensePlate]= useState('');
 
   const [isRegistering,setIsRegistering]= useState(false);
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [currentAddress,setCurrentAddress] = useState<string | null>(null);
+  const [currentCoords,setCurrentCoords] = useState<LocationObjectCoords | null>(null);
+
+  const [locationPermission,requestLocationPermission]= useForegroundPermissions();
 
   const {goBack}= useNavigation();
 
@@ -61,13 +81,68 @@ export function Departure() {
     }
   }
 
+  useEffect(()=>{
+    requestLocationPermission();
+  })
+
+  useEffect(()=>{
+    if(!locationPermission?.granted){
+      return;
+    }
+    
+      let subscription: LocationSubscription;
+
+      watchPositionAsync({
+        accuracy: LocationAccuracy.High,
+        timeInterval: 1000,
+      },(location)=>{
+        setCurrentCoords(location.coords)
+        getAddress(location.coords)
+        .then((address)=>{
+          if(address){
+            setCurrentAddress(address);
+          }
+        })
+        .finally(()=>setIsLoading(false))
+      })
+      .then((response)=> subscription = response);
+      return () => {
+        if(subscription){
+          subscription.remove();
+        }
+      }
+  },[locationPermission])
+
+  if(!locationPermission?.granted){
+    return(   
+    <Container>
+      <Header title='Saída'/>
+        <Message>
+          Você precisa dar permissão para acessar sua localização.
+          Por favor abra as configurações e permita o acesso.
+        </Message>
+    </Container>)
+  }
+
+  if(isLoading){
+    return (
+    <Loading/>
+    )
+  }
+
   return (
     <Container>
       <Header title="Saída"/>
 
       <KeyboardAwareScrollView extraHeight={100}>
         <ScrollView>
+          {currentCoords && <Map coordinates={[currentCoords]}/>}
           <Content>
+            {
+              currentAddress &&
+              <LocationInfo label="Localização atual" description={currentAddress}  icon={faCar}/>
+            }
+            
             <LicensePlateInput
               ref={licensePlateRef}
               label="Placa do veículo"
