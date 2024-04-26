@@ -47,24 +47,23 @@ export function Home() {
     }
   }
 
-  async function fetchHistoric(){
-    try{
-      const response= historic.filtered("status = 'arrival' SORT (created_at DESC)");
-      const lastSync= await getLastAsync();
+  async function fetchHistoric() {
+    try {
+      const response = historic.filtered("status='arrival' SORT(created_at DESC)");
 
-      const formattedHistoric= response.map((item)=>{
-        return({
+      const lastSync = await getLastAsync();
+
+      const formattedHistoric = response.map((item) => {
+        return ({
           id: item._id.toString(),
           licensePlate: item.license_plate,
-          isSync:lastSync > item.updated_at!.getTime(),
-          created: dayjs(item.created_at).format('[Saída em] DD/MM/YYYY [às] HH:mm'),
-        });
-      });
-
+          isSync: lastSync > item.updated_at!.getTime(),
+          created: dayjs(item.created_at).format('[Saída em] DD/MM/YYYY [às] HH:mm')
+        })
+      })
       setVehicleHistoric(formattedHistoric);
-    }catch(error){
-      console.log(error)
-      Alert.alert('Histórico','Não foi possível carregar o histórico')
+    } catch (error) {
+      console.log(error);
     }
   }
 

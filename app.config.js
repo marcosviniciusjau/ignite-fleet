@@ -25,11 +25,11 @@ module.exports ={
         "googleMapsApiKey": process.env.GOOGLE_MAPS_API_KEY
     },
     "android": {
+      "package": "com.marcosviniciusjahu.ignitefleet",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#202024"
       },
-      "package": "com.marcosviniciusjahu.ignitefleet",
       "config":{
         "googleMaps":{ 
           "apiKey": process.env.GOOGLE_MAPS_API_KEY

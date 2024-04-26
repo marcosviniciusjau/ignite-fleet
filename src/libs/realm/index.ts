@@ -1,4 +1,4 @@
-import {createRealmContext} from '@realm/react';
+import {createRealmContext,Realm} from '@realm/react';
 import { Historic } from './schemas/Historic';
 
 const realmAccessBehavior: Realm.OpenRealmBehaviorConfiguration= {
