@@ -3,6 +3,7 @@ import { TextInput,ScrollView, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
    useForegroundPermissions,
+   requestBackgroundPermissionsAsync,
    watchPositionAsync,
    LocationAccuracy,
    LocationSubscription,
@@ -28,6 +29,7 @@ import { Loading } from '../../components/Loading';
 import { Map } from '../../components/Map';
 import { LocationInfo } from '../../components/LocationInfo';
 import { faCar } from '@fortawesome/free-solid-svg-icons';
+import { startLocationTask } from '../../tasks/backgroundLocationTask';
 
 export function Departure() {
   const [description,setDescription]= useState('');
@@ -50,7 +52,7 @@ export function Departure() {
   const descriptionRef= useRef<TextInput>(null);
   const licensePlateRef= useRef<TextInput>(null);
 
-  function handleDepartureRegister() {
+  async function handleDepartureRegister() {
     try{
       if(!licensePlateValidate(licensePlate)){
         licensePlateRef.current?.focus();
@@ -67,6 +69,14 @@ export function Departure() {
 
       setIsRegistering(true);
 
+      const backgroundPermission = await requestBackgroundPermissionsAsync();
+      if(!backgroundPermission?.granted){
+        setIsRegistering(false);
+        
+        return Alert.alert('Localização', 'Para registrar a saída, você deve autorizar o acesso a sua localização em segundo plano');
+      }
+      await startLocationTask();
+      
       realm.write(()=>{
         realm.create('Historic',Historic.generate({
           user_id: user!.id,

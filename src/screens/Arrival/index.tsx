@@ -13,6 +13,7 @@ import { Button } from '../../components/Button';
 import { ButtonIcon } from '../../components/ButtonIcon';
 import { useEffect, useState } from 'react';
 import { getLastAsync } from '../../libs/asyncStorage/SyncStorage';
+import { stopLocationTask } from '../../tasks/backgroundLocationTask';
 
 type RouteParams={
     id:string
@@ -50,11 +51,12 @@ export function Arrival() {
       goBack();
     }
 
-    function handleArrivalRegister(){
+    async function handleArrivalRegister(){
       try {
         if(!historic){
           return Alert.alert('Erro', "Não foi possível registrar a chegada")
         }
+        await stopLocationTask();
         realm.write(()=>{
           historic.status='arrival';
           historic.updated_at= new Date();
