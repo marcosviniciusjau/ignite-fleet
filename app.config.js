@@ -1,11 +1,12 @@
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config()
 
-module.exports ={
+module.exports = {
   "expo": {
-    "name": "ignite-fleet",
-    "slug": "ignite-fleet",
+    "name": "ignitefleet",
+    "slug": "ignitefleet",
+    "scheme": "ignitefleet",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,15 +24,24 @@ module.exports ={
       "bundleIdentifier": "com.marcosviniciusjahu.ignitefleet",
       "config": {
         "googleMapsApiKey": process.env.GOOGLE_MAPS_API_KEY
+      },
+      "infoPlist": {
+        "UIBackgroundModes": ["location"]
+      }
     },
     "android": {
-      "package": "com.marcosviniciusjahu.ignitefleet",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#202024"
       },
-      "config":{
-        "googleMaps":{ 
+      "package": "com.marcosviniciusjahu.ignitefleet",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ],
+      "config": {
+        "googleMaps": {
           "apiKey": process.env.GOOGLE_MAPS_API_KEY
         }
       }
@@ -44,10 +54,9 @@ module.exports ={
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow ${PRODUCT_NAME} to use your location"
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
         }
       ]
     ]
   }
-}
 }

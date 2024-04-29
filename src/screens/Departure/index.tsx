@@ -35,9 +35,9 @@ export function Departure() {
 
   const [isRegistering,setIsRegistering]= useState(false);
 
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [isLoading, setIsLoading] = useState(true);  
   const [currentAddress,setCurrentAddress] = useState<string | null>(null);
+ 
   const [currentCoords,setCurrentCoords] = useState<LocationObjectCoords | null>(null);
 
   const [locationPermission,requestLocationPermission]= useForegroundPermissions();
@@ -59,6 +59,10 @@ export function Departure() {
       if(description.trim().length === 0){
         descriptionRef.current?.focus();
         return Alert.alert('Finalidade inválida', 'A Finalidade é inválida');
+      }
+
+      if(!currentCoords?.latitude || !currentCoords.longitude){
+        return Alert.alert('Localização inválida', 'Não foi possível encontrar sua localização');
       }
 
       setIsRegistering(true);
@@ -85,49 +89,47 @@ export function Departure() {
     requestLocationPermission();
   })
 
-  useEffect(()=>{
+  useEffect(() => {
     if(!locationPermission?.granted){
-      return;
-    }
+      return
+    } 
+    let subscription: LocationSubscription;
     
-      let subscription: LocationSubscription;
-
-      watchPositionAsync({
-        accuracy: LocationAccuracy.High,
-        timeInterval: 1000,
-      },(location)=>{
-        setCurrentCoords(location.coords)
-        getAddress(location.coords)
-        .then((address)=>{
-          if(address){
-            setCurrentAddress(address);
+    watchPositionAsync({
+      accuracy: LocationAccuracy.High,
+      timeInterval: 1000
+    }, (location) => {
+      setCurrentCoords(location.coords)
+      getAddress(location.coords)
+        .then(address => {
+          if(address) {
+            setCurrentAddress(address)
           }
         })
-        .finally(()=>setIsLoading(false))
-      })
-      .then((response)=> subscription = response);
-      return () => {
-        if(subscription){
-          subscription.remove();
-        }
+        .finally(() => setIsLoading(false))
+    }).then(response => subscription = response);
+    return () => {
+      if(subscription) {
+        subscription.remove()
       }
-  },[locationPermission])
+    };
+  }, [locationPermission?.granted])
 
-  if(!locationPermission?.granted){
-    return(   
-    <Container>
-      <Header title='Saída'/>
+  if(!locationPermission?.granted) {
+    return (
+      <Container>
+        <Header title='Saída' />
         <Message>
-          Você precisa dar permissão para acessar sua localização.
-          Por favor abra as configurações e permita o acesso.
+          Você precisa permitir que o aplicativo tenha acesso a 
+          localização para acessar essa funcionalidade. Por favor, acesse as
+          configurações do seu dispositivo para conceder a permissão ao aplicativo.
         </Message>
-    </Container>)
+      </Container>
+    )
   }
 
-  if(isLoading){
-    return (
-    <Loading/>
-    )
+  if(isLoading) {
+    return <Loading />
   }
 
   return (
@@ -136,13 +138,18 @@ export function Departure() {
 
       <KeyboardAwareScrollView extraHeight={100}>
         <ScrollView>
-          {currentCoords && <Map coordinates={[currentCoords]}/>}
-          <Content>
-            {
+          
+        {currentCoords && <Map coordinates={[currentCoords]}/>}
+    
+         <Content>
+         {
               currentAddress &&
-              <LocationInfo label="Localização atual" description={currentAddress}  icon={faCar}/>
+              <LocationInfo
+                icon={faCar}
+                label='Localização atual'
+                description={currentAddress}
+              />
             }
-            
             <LicensePlateInput
               ref={licensePlateRef}
               label="Placa do veículo"
