@@ -5,7 +5,7 @@ import { Container,Info,Label,Description } from './styles';
 export type LocationInfoProps = {
     label:string;
     description:string;
-    icon: IconLookup | IconName;
+    icon?: IconLookup | IconName;
 }
 
 export function LocationInfo({icon,label,description}:

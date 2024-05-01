@@ -19,7 +19,7 @@ import { useUser } from '@realm/react';
 import { licensePlateValidate } from '../../utils/licensePlateValidate';
 import { getAddress } from '../../utils/getAddress';
 
-import { Container, Content, Message } from './styles';
+import { Container, Content, Message, MessageContent } from './styles';
 
 import { Header } from '../../components/Header';
 import { LicensePlateInput } from '../../components/LicensePlateInput';
@@ -30,6 +30,7 @@ import { Map } from '../../components/Map';
 import { LocationInfo } from '../../components/LocationInfo';
 import { faCar } from '@fortawesome/free-solid-svg-icons';
 import { startLocationTask } from '../../tasks/backgroundLocationTask';
+import { openSettings } from '../../utils/openSettings';
 
 export function Departure() {
   const [description,setDescription]= useState('');
@@ -73,7 +74,17 @@ export function Departure() {
       if(!backgroundPermission?.granted){
         setIsRegistering(false);
         
-        return Alert.alert('Localização', 'Para registrar a saída, você deve autorizar o acesso a sua localização em segundo plano');
+        return Alert.alert(
+          'Localização', 
+          'Para registrar a saída, você deve autorizar o acesso a sua localização em segundo plano',
+          [
+            {
+              text:'Abrir configurações', 
+              onPress:()=>{openSettings()},
+            }
+          ]
+        );
+      
       }
       
       await startLocationTask();
@@ -135,11 +146,15 @@ export function Departure() {
     return (
       <Container>
         <Header title='Saída' />
+        <MessageContent>
         <Message>
           Você precisa permitir que o aplicativo tenha acesso a 
           localização para acessar essa funcionalidade. Por favor, acesse as
           configurações do seu dispositivo para conceder a permissão ao aplicativo.
         </Message>
+        <Button title="Abrir configurações" onPress={openSettings} />
+        </MessageContent>
+
       </Container>
     )
   }
