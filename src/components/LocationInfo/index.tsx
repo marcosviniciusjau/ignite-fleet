@@ -1,4 +1,4 @@
-import { IconLookup, IconName, faCar } from '@fortawesome/free-solid-svg-icons';
+import { IconLookup, IconName, faCar, faCoffee } from '@fortawesome/free-solid-svg-icons';
 import { IconBox } from '../IconBox';
 import { Container,Info,Label,Description } from './styles';
 
@@ -13,7 +13,7 @@ export function LocationInfo({icon,label,description}:
 ) {
   return (
     <Container>
-        <IconBox icon={faCar}/>
+        <IconBox icon={icon}/>
         <Info>
 
         <Label numberOfLines={1}>

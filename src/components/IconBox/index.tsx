@@ -1,7 +1,7 @@
 import { useTheme } from 'styled-components';
 
 import { Container, SizeProps } from './styles';
-import { IconLookup, IconName, faCar } from '@fortawesome/free-solid-svg-icons';
+import { IconLookup, IconName, faCar, faFlag } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 type Props ={
@@ -16,7 +16,7 @@ export function IconBox({ icon, size='NORMAL' }: Props) {
   
     return (
       <Container size={size}>
-      <FontAwesomeIcon size={iconSize} color={COLORS.BRAND_MID} icon={faCar} />
+      <FontAwesomeIcon size={iconSize} color={COLORS.BRAND_MID} icon={icon} />
     </Container>
   );
 }
