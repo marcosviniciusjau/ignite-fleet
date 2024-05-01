@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { BSON } from 'realm';
 import { useObject,useRealm } from '../../libs/realm';
+
+import { LatLng } from 'react-native-maps';
 import { Historic } from '../../libs/realm/schemas/Historic';
 
 import { Container, Content, Description, Footer, LicensePlate,AsyncMessage } from './styles';
@@ -11,21 +14,22 @@ import { Label } from '../../components/LicensePlateInput/styles';
 import { Header } from '../../components/Header';
 import { Button } from '../../components/Button';
 import { ButtonIcon } from '../../components/ButtonIcon';
-import { useEffect, useState } from 'react';
+import { Map } from '../../components/Map';
 import { getLastAsync } from '../../libs/asyncStorage/SyncStorage';
 import { stopLocationTask } from '../../tasks/backgroundLocationTask';
+import {  getStorageLocations} from '../../libs/asyncStorage/LocationStorage';
 
 type RouteParams={
     id:string
 }
 export function Arrival() {
     const [dataNotSynced,setDataNotSynced]= useState(false);
+    const [coordinates,setCoordinates]= useState<LatLng[]>([])
 
     const route= useRoute();
     const { id }= route.params as RouteParams;
 
-    const historic= useObject(Historic, new BSON.UUID(id));
-
+    const historic = useObject(Historic, new BSON.UUID(id) as unknown as string);
     const title= historic?.status === 'departure' ? 'Chegada' : 'Detalhes';
 
     const {goBack}= useNavigation()
@@ -44,10 +48,11 @@ export function Arrival() {
       ])
     }
 
-    function removeVehicle(){
+    async function removeVehicle(){
       realm.write(()=>{
         realm.delete(historic);
       });
+      await stopLocationTask();
       goBack();
     }
 
@@ -70,15 +75,30 @@ export function Arrival() {
       }
     }
 
+    async function getLocationsInfo(){
+      if(!historic){
+        return;
+      }
+
+      const lastSync= await getLastAsync();
+      const updatedAt= historic!.updated_at.getTime();
+      setDataNotSynced(updatedAt > lastSync);
+
+      const locationsStorage= await getStorageLocations();
+      console.log("storage",locationsStorage)
+      setCoordinates(locationsStorage)
+
+    }
+
     useEffect(()=>{
-      getLastAsync()
-      .then(lastSync =>setDataNotSynced(historic!.updated_at.getTime() > lastSync));
-      
+      getLocationsInfo();
     },[historic])
 
   return (
     <Container>
       <Header title={title}/>
+
+      {coordinates.length > 0 && <Map coordinates={coordinates}/>}
       <Content>
         <Label>
           Placa do veículo
@@ -98,6 +118,7 @@ export function Arrival() {
 
       
       </Content>
+
       {
           historic?.status === 'departure' &&
           <Footer>
@@ -115,7 +136,7 @@ export function Arrival() {
      {  dataNotSynced &&
         <AsyncMessage>
               Sincronização da
-              {historic?.status === 'departure' ? 'partida' : 'chegada'}
+              {historic?.status === 'departure' ? ' partida ' : 'chegada'}
               pendente
         </AsyncMessage>
      }

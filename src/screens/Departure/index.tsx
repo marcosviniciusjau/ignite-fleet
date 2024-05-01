@@ -75,13 +75,19 @@ export function Departure() {
         
         return Alert.alert('Localização', 'Para registrar a saída, você deve autorizar o acesso a sua localização em segundo plano');
       }
+      
       await startLocationTask();
       
       realm.write(()=>{
         realm.create('Historic',Historic.generate({
           user_id: user!.id,
           license_plate: licensePlate.toUpperCase(),
-          description
+          description,
+          coords:[{
+            latitude:currentCoords.latitude,
+            longitude:currentCoords.longitude,
+            timestamp:new Date().getTime()
+          }]
         }));
       });
 

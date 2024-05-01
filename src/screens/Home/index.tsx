@@ -87,6 +87,7 @@ export function Home() {
     if(percentage < 100){
       setPercentageToSync(`${percentage.toFixed(2)}% sincronizado.`);
     }
+
   }
 
   useEffect(() => {
